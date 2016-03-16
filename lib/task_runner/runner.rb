@@ -7,6 +7,8 @@ module TaskRunner
 
   class Runner 
 
+    DEFAULT_MANIFEST = 'TaskRunnerFile'
+
     attr_reader :task_manager
     
     def initialize(code)
