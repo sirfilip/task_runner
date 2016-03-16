@@ -1,0 +1,86 @@
+#! /usr/bin/env ruby
+
+class TaskRunner
+  attr_reader :tasks
+  def initialize
+    @tasks = []
+    @description = ""
+  end
+
+  def desc(description)
+    @description = description
+  end
+
+  def get_description
+    last_description = @description
+    @description = ""
+    last_description
+  end
+
+  def task(name, &block)
+    dependencies = []
+    if name.is_a? Hash
+      dependencies = [name.values.first].flatten
+      name = name.keys.first
+    end
+    tasks << Task.new(get_description, name, block, dependencies)  
+  end
+
+  def run_tasks(task_list)
+    task_list.each do |task_name|
+      task = tasks.find {|t| t.name == task_name.to_sym}
+      run_task(task)
+    end
+  end
+
+  private 
+  def run_task(task)
+    task.deps.each do |t|
+      run_task(tasks.find {|subtask| subtask.name == t})
+    end
+    task.invoke
+  end
+end
+
+class Task 
+  attr_reader :description, :name, :action, :deps
+
+  def initialize(description, name, action, deps)
+    @deps = deps
+    @description = description
+    @name = name
+    @action = action
+  end
+
+  def invoke
+    @action.call
+  end
+end
+
+
+
+task_runner = TaskRunner.new 
+
+
+task_runner.instance_eval DATA.read
+
+
+ARGV.unshift :default unless ARGV.any?
+task_runner.run_tasks(ARGV)
+
+
+__END__
+
+desc "The default Task"
+task :default do 
+  puts "I am the default task"
+end
+
+desc "A simple task that can be invoked by name"
+task :a_brand_new_task => [:default, :with_no_description] do 
+  puts "A shiny new task"
+end
+
+task :with_no_description do 
+  puts "I am a task that has no description"
+end
