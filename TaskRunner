@@ -5,6 +5,7 @@ task :first_task do
   puts "I am the first task"
 end
 
+desc "The second task"
 task :second_task => :first_task do 
   puts "I am the second task"
 end

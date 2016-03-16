@@ -5,8 +5,16 @@ require File.expand_path('../../lib/task_runner/runner', __FILE__)
 task = ARGV.shift || 'default'
 
 manifest = File.read('TaskRunner')
-
-TaskRunner::Runner.new(manifest).run_task(task.to_sym)
+tr = TaskRunner::Runner.new(manifest)
+  
+if task == 'tasks'
+  tr.task_manager.tasks.each do |t|
+    puts t['task'].name.to_s.ljust(40) + t['task'].description
+    puts
+  end
+else
+  tr.run_task(task.to_sym)
+end
 
 
 __END__
