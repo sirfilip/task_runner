@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+
+require File.expand_path('../../lib/task_runner/runner', __FILE__)
+
+task = ARGV.shift || 'default'
+
+manifest = File.read('TaskRunner')
+
+TaskRunner::Runner.new(manifest).run_task(task.to_sym)
+
+
+__END__
+
+require 'pp'
+
+desc 'this is the description of the task number one'
+task :first_task do 
+  puts "I am the first task"
+end
+
+task :second_task => :first_task do 
+  puts "I am the second task"
+end
+
+task :third_task => :second_task do 
+  puts "I am the third task"
+  pp "This will be pped"
+  puts DATA.read
+end
+
